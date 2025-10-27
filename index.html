@@ -1,0 +1,3484 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
+    <title>美食探索+ | AI助手</title>
+    <!-- AMap API -->
+    <script> 
+        window._AMapSecurityConfig = {
+          securityJsCode: 'cf71cd668b9003a1144459e461092afb',
+        }
+    </script>
+    <script type="text/javascript" src="https://webapi.amap.com/maps?v=2.0&key=11b1daeff703d83adef3e84cd746ab84&plugin=AMap.CitySearch,AMap.PlaceSearch,AMap.Geocoder"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style type="text/css">
+        :root {
+            --primary-color: #ff6b6b;
+            --primary-gradient: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+            --secondary-color: #4ecdc4;
+            --dark-color: #292f36;
+            --light-color: #f7f7f7;
+            --text-color: #333;
+            --text-secondary: #666;
+            --border-radius: 12px;
+            --box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            
+            /* iOS风格变量 */
+            --ios-bg: #f2f2f7;
+            --ios-card-bg: #ffffff;
+            --ios-primary: #007aff;
+            --ios-secondary: #5ac8fa;
+            --ios-success: #34c759;
+            --ios-warning: #ff9500;
+            --ios-danger: #ff3b30;
+            --ios-light-text: #8e8e93;
+            --ios-dark-text: #1c1c1e;
+            --ios-border: #c6c6c8;
+            --ios-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            --ios-radius: 12px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        body {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--ios-bg);
+            color: var(--ios-dark-text);
+        }
+        
+        .header {
+            background: var(--ios-card-bg);
+            color: var(--ios-dark-text);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--ios-shadow);
+            z-index: 100;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        .header h1 {
+            font-size: 20px;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .btn-icon {
+            background: transparent;
+            border: none;
+            color: var(--ios-primary);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 18px;
+        }
+        
+        .btn-icon:active {
+            opacity: 0.7;
+        }
+        
+        .search-container {
+            background: var(--ios-card-bg);
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            box-shadow: var(--ios-shadow);
+            z-index: 99;
+        }
+        
+        .search-bar {
+            display: flex;
+            flex: 1;
+            position: relative;
+        }
+        
+        .search-bar input {
+            flex: 1;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            outline: none;
+            transition: var(--transition);
+            background: var(--ios-bg);
+        }
+        
+        .search-bar input:focus {
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+        }
+        
+        .search-bar button {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--ios-primary);
+            font-size: 16px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .search-bar button:active {
+            opacity: 0.7;
+        }
+        
+        .city-selector {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 5px 12px;
+            border-radius: 15px;
+            background: var(--ios-bg);
+            transition: var(--transition);
+            color: var(--ios-dark-text);
+            font-weight: 400;
+            font-size: 14px;
+            border: 1px solid transparent;
+        }
+        
+        .city-selector i {
+            margin-right: 5px;
+            color: var(--ios-primary);
+        }
+        
+        .city-selector:active {
+            background: #e5e5ea;
+        }
+        
+        .food-categories {
+            display: flex;
+            overflow-x: auto;
+            padding: 12px 15px;
+            background: var(--ios-card-bg);
+            margin-bottom: 10px;
+            box-shadow: var(--ios-shadow);
+            scrollbar-width: none;
+            gap: 8px;
+        }
+        
+        .food-categories::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .category {
+            flex: 0 0 auto;
+            padding: 8px 16px;
+            background: var(--ios-bg);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 14px;
+            white-space: nowrap;
+            font-weight: 400;
+        }
+        
+        .category.active {
+            background: var(--ios-primary);
+            color: white;
+        }
+        
+        .category:active:not(.active) {
+            background: #e5e5ea;
+        }
+        
+        .main-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        #container {
+            flex: 1;
+            height: 100%;
+        }
+        
+        #panel {
+            width: 360px;
+            background: var(--ios-card-bg);
+            overflow-y: auto;
+            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.05);
+            padding: 0;
+            transition: var(--transition);
+            z-index: 10;
+        }
+        
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--ios-border);
+            background: var(--ios-card-bg);
+        }
+        
+        .tab {
+            padding: 15px;
+            cursor: pointer;
+            transition: var(--transition);
+            flex: 1;
+            text-align: center;
+            color: var(--ios-light-text);
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        .tab.active {
+            color: var(--ios-primary);
+            border-bottom: 2px solid var(--ios-primary);
+            font-weight: 600;
+        }
+        
+        .tab-content {
+            display: none;
+            background: var(--ios-bg);
+            min-height: 300px;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .result-item {
+            background: var(--ios-card-bg);
+            border-radius: var(--ios-radius);
+            margin: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            box-shadow: var(--ios-shadow);
+        }
+        
+        .result-item:active {
+            transform: scale(0.98);
+        }
+        
+        .result-item h3 {
+            font-size: 16px;
+            margin-bottom: 8px;
+            color: var(--ios-dark-text);
+            font-weight: 600;
+            padding-right: 30px;
+        }
+        
+        .result-item p {
+            font-size: 14px;
+            color: var(--ios-light-text);
+            margin-bottom: 8px;
+        }
+        
+        .result-item .rating {
+            color: var(--ios-warning);
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .result-item .address {
+            display: flex;
+            align-items: center;
+            font-size: 13px;
+            color: var(--ios-light-text);
+        }
+        
+        .result-item .address i {
+            margin-right: 5px;
+            color: var(--ios-primary);
+        }
+        
+        .favorite-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: #ddd;
+            font-size: 18px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .favorite-btn:hover, .favorite-btn.active {
+            color: var(--ios-warning);
+        }
+        
+        .favorite-btn.active {
+            transform: scale(1.1);
+        }
+        
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+            z-index: 5;
+        }
+        
+        .loading i {
+            font-size: 40px;
+            color: var(--ios-primary);
+            animation: spin 1s infinite linear;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .no-results {
+            padding: 30px;
+            text-align: center;
+            color: var(--ios-light-text);
+            background: var(--ios-card-bg);
+            margin: 20px;
+            border-radius: var(--ios-radius);
+        }
+        
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
+        
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            background: var(--ios-card-bg);
+            border-radius: var(--ios-radius);
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: var(--ios-shadow);
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+        }
+        
+        .modal.active .modal-content {
+            transform: translateY(0);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--ios-border);
+        }
+        
+        .modal-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--ios-dark-text);
+            margin: 0;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 22px;
+            cursor: pointer;
+            color: var(--ios-light-text);
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .city-list {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        
+        .city-item {
+            padding: 12px 10px;
+            text-align: center;
+            background: var(--ios-bg);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 14px;
+        }
+        
+        .city-item:active {
+            background: var(--ios-primary);
+            color: white;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--ios-dark-text);
+        }
+        
+        .form-group input, .form-group textarea, .form-group select {
+            padding: 12px;
+            border: 1px solid var(--ios-border);
+            border-radius: 10px;
+            font-size: 16px;
+            transition: var(--transition);
+            background: var(--ios-bg);
+        }
+        
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            border-color: var(--ios-primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+        }
+        
+        .btn-submit {
+            background: var(--ios-primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: 500;
+            font-size: 16px;
+            cursor: pointer;
+            transition: var(--transition);
+            width: 100%;
+        }
+        
+        .btn-submit:active {
+            opacity: 0.8;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
+        
+        .toast.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        /* AI助手样式 */
+        .ai-assistant {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 320px;
+            height: 450px;
+            background: var(--ios-card-bg);
+            border-radius: var(--ios-radius);
+            box-shadow: var(--ios-shadow);
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            overflow: hidden;
+            transform: translateY(20px);
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
+        
+        .ai-assistant.active {
+            transform: translateY(0);
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .chat-header {
+            background: var(--ios-card-bg);
+            color: var(--ios-dark-text);
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--ios-border);
+        }
+        
+        .chat-header h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--ios-light-text);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            background: var(--ios-bg);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-input {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid var(--ios-border);
+            background: var(--ios-card-bg);
+        }
+        
+        .chat-input input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid var(--ios-border);
+            border-radius: 18px;
+            font-size: 15px;
+            outline: none;
+            background: var(--ios-bg);
+        }
+        
+        .chat-input input:focus {
+            border-color: var(--ios-primary);
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+        }
+        
+        .chat-input button {
+            background: var(--ios-primary);
+            color: white;
+            border: none;
+            border-radius: 18px;
+            width: 36px;
+            height: 36px;
+            margin-left: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .chat-input button:active {
+            opacity: 0.8;
+        }
+        
+        .message {
+            margin-bottom: 12px;
+            padding: 10px 15px;
+            border-radius: 18px;
+            max-width: 80%;
+            font-size: 15px;
+            line-height: 1.4;
+            animation: message-appear 0.3s ease;
+        }
+        
+        @keyframes message-appear {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .user-message {
+            background: var(--ios-primary);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+        }
+        
+        .ai-message {
+            background: white;
+            color: var(--ios-dark-text);
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+            box-shadow: var(--ios-shadow);
+        }
+        
+        .ai-message a {
+            color: var(--ios-primary);
+            text-decoration: none;
+        }
+        
+        .ai-thinking {
+            display: flex;
+            align-items: center;
+            padding: 8px 15px;
+            background: white;
+            border-radius: 18px;
+            align-self: flex-start;
+            margin-bottom: 12px;
+            border-bottom-left-radius: 5px;
+            box-shadow: var(--ios-shadow);
+            font-size: 15px;
+        }
+        
+        .thinking-dots {
+            display: flex;
+            margin-left: 8px;
+        }
+        
+        .thinking-dots span {
+            width: 8px;
+            height: 8px;
+            background: var(--ios-light-text);
+            border-radius: 50%;
+            margin: 0 2px;
+            opacity: 0.5;
+            animation: thinking 1.4s infinite;
+        }
+        
+        .thinking-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .thinking-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        @keyframes thinking {
+            0%, 60%, 100% {
+                transform: translateY(0);
+                opacity: 0.5;
+            }
+            30% {
+                transform: translateY(-4px);
+                opacity: 1;
+            }
+        }
+        
+        .open-assistant-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 25px;
+            background: var(--ios-primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+            cursor: pointer;
+            z-index: 999;
+            border: none;
+            font-size: 20px;
+            transition: all 0.2s;
+        }
+        
+        .open-assistant-btn:active {
+            transform: scale(0.92);
+        }
+        
+        .chat-suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 10px;
+            gap: 8px;
+            border-top: 1px solid var(--ios-border);
+            background: var(--ios-card-bg);
+        }
+        
+        .suggestion-chip {
+            background: var(--ios-bg);
+            padding: 8px 12px;
+            border-radius: 15px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background 0.2s;
+            color: var(--ios-primary);
+        }
+        
+        .suggestion-chip:active {
+            background: #e5e5ea;
+        }
+        
+        .map-poi-info {
+            margin-top: 10px;
+            background: white;
+            border-radius: 12px;
+            padding: 12px;
+            border: 1px solid var(--ios-border);
+            box-shadow: var(--ios-shadow);
+        }
+        
+        .map-poi-info h4 {
+            font-size: 15px;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        .map-poi-info p {
+            font-size: 13px;
+            color: var(--ios-light-text);
+            margin-bottom: 8px;
+        }
+        
+        .poi-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .poi-action-btn {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .poi-action-btn.view {
+            background: var(--ios-bg);
+            color: var(--ios-dark-text);
+        }
+        
+        .poi-action-btn.navigate {
+            background: var(--ios-primary);
+            color: white;
+        }
+        
+        .poi-action-btn:active {
+            opacity: 0.8;
+        }
+        
+        .loading-indicator i {
+            animation: spin 1s infinite linear;
+            color: var(--ios-primary);
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            #container {
+                height: 50%;
+            }
+            
+            #panel {
+                width: 100%;
+                height: 50%;
+                box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            }
+            
+            .header h1 {
+                font-size: 18px;
+            }
+            
+            .ai-assistant {
+                width: 100%;
+                height: 70%;
+                right: 0;
+                bottom: 0;
+                border-radius: var(--ios-radius) var(--ios-radius) 0 0;
+            }
+            
+            .city-list {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        /* Custom Info Window */
+        .custom-info-window {
+            background: white;
+            border-radius: var(--ios-radius);
+            box-shadow: var(--ios-shadow);
+            padding: 15px;
+            width: 280px;
+        }
+        
+        .info-window-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .info-window-title {
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .info-window-favorite {
+            color: #ddd;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .info-window-favorite:hover, .info-window-favorite.active {
+            color: var(--ios-warning);
+        }
+        
+        .info-window-body {
+            font-size: 14px;
+        }
+        
+        .info-window-rating {
+            color: var(--ios-warning);
+            margin-bottom: 8px;
+        }
+        
+        .info-window-address {
+            color: var(--ios-light-text);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .info-window-address i {
+            margin-right: 5px;
+            color: var(--ios-primary);
+        }
+        
+        .info-window-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .info-window-btn {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            transition: var(--transition);
+        }
+        
+        .info-window-btn.navigate {
+            background: var(--ios-primary);
+            color: white;
+        }
+        
+        .info-window-btn.share {
+            background: var(--ios-bg);
+            color: var(--ios-dark-text);
+        }
+        
+        .info-window-btn:active {
+            opacity: 0.8;
+        }
+        
+        /* 路径引导UI */
+        .route-guidance {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            border-radius: var(--ios-radius);
+            box-shadow: var(--ios-shadow);
+            padding: 15px;
+            width: 90%;
+            max-width: 400px;
+            z-index: 900;
+            display: none;
+        }
+        
+        .route-guidance.active {
+            display: block;
+            animation: slide-up 0.3s ease;
+        }
+        
+        @keyframes slide-up {
+            from {
+                transform: translate(-50%, 50px);
+                opacity: 0;
+            }
+            to {
+                transform: translate(-50%, 0);
+                opacity: 1;
+            }
+        }
+        
+        .route-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .route-header h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .route-close {
+            background: none;
+            border: none;
+            color: var(--ios-light-text);
+            font-size: 18px;
+            cursor: pointer;
+        }
+        
+        .route-stops {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin-bottom: 15px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        
+        .route-stop {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            border-radius: 8px;
+            background: var(--ios-bg);
+        }
+        
+        .stop-number {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--ios-primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .stop-info {
+            flex: 1;
+        }
+        
+        .stop-name {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .stop-address {
+            font-size: 12px;
+            color: var(--ios-light-text);
+        }
+        
+        .route-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .route-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        
+        .route-btn.primary {
+            background: var(--ios-primary);
+            color: white;
+        }
+        
+        .route-btn.secondary {
+            background: var(--ios-bg);
+            color: var(--ios-dark-text);
+        }
+        
+        .fab-menu {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 12px;
+            z-index: 990;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
+        
+        .fab-menu.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .fab-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: slide-left 0.3s ease forwards;
+            opacity: 0;
+            transform: translateX(20px);
+        }
+        
+        @keyframes slide-left {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .fab-item:nth-child(1) {
+            animation-delay: 0s;
+        }
+        
+        .fab-item:nth-child(2) {
+            animation-delay: 0.05s;
+        }
+        
+        .fab-item:nth-child(3) {
+            animation-delay: 0.1s;
+        }
+        
+        .fab-label {
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 13px;
+            box-shadow: var(--ios-shadow);
+        }
+        
+        .fab-button {
+            width: 40px;
+            height: 40px;
+            border-radius: 20px;
+            background: white;
+            color: var(--ios-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--ios-shadow);
+            cursor: pointer;
+            border: none;
+            font-size: 16px;
+        }
+        
+        .fab-button:active {
+            transform: scale(0.95);
+        }
+        
+        .fab-button.share {
+            background: var(--ios-secondary);
+            color: white;
+        }
+        
+        .fab-button.favorite {
+            background: var(--ios-warning);
+            color: white;
+        }
+        
+        .fab-button.route {
+            background: var(--ios-success);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>美食探索+</h1>
+        <div class="header-actions">
+            <div id="current-city" class="city-selector">
+                <i class="fas fa-map-marker-alt"></i>
+                <span>定位中...</span>
+            </div>
+            <button id="favorites-btn" class="btn-icon">
+                <i class="fas fa-heart"></i>
+            </button>
+        </div>
+    </div>
+    
+    <div class="search-container">
+        <div class="search-bar">
+            <input type="text" id="keyword" placeholder="搜索美食、餐厅" value="美食">
+            <button id="search-btn"><i class="fas fa-search"></i></button>
+        </div>
+    </div>
+    
+    <div class="food-categories">
+        <div class="category active" data-keyword="美食">全部美食</div>
+        <div class="category" data-keyword="火锅">火锅</div>
+        <div class="category" data-keyword="烧烤">烧烤</div>
+        <div class="category" data-keyword="小吃">特色小吃</div>
+        <div class="category" data-keyword="西餐">西餐</div>
+        <div class="category" data-keyword="日料">日料</div>
+        <div class="category" data-keyword="甜点">甜点</div>
+        <div class="category" data-keyword="咖啡">咖啡</div>
+        <div class="category" data-keyword="面包">面包</div>
+        <div class="category" data-keyword="早餐">早餐</div>
+    </div>
+    
+    <div class="main-content">
+        <div id="container"></div>
+        <div id="panel">
+            <div class="tabs">
+                <div class="tab active" data-tab="results">搜索结果</div>
+                <div class="tab" data-tab="community">美食分享</div>
+            </div>
+            <div id="results-content" class="tab-content active"></div>
+            <div id="community-content" class="tab-content">
+                <!-- 社区分享的美食内容将动态加载到这里 -->
+            </div>
+        </div>
+    </div>
+    
+    <div class="loading">
+        <i class="fas fa-spinner"></i>
+    </div>
+    
+    <!-- 城市选择模态框 -->
+    <div id="city-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>选择城市</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="city-list">
+                    <div class="city-item" data-city="北京" data-adcode="010">北京</div>
+                    <div class="city-item" data-city="上海" data-adcode="021">上海</div>
+                    <div class="city-item" data-city="广州" data-adcode="020">广州</div>
+                    <div class="city-item" data-city="深圳" data-adcode="0755">深圳</div>
+                    <div class="city-item" data-city="杭州" data-adcode="0571">杭州</div>
+                    <div class="city-item" data-city="南京" data-adcode="025">南京</div>
+                    <div class="city-item" data-city="武汉" data-adcode="027">武汉</div>
+                    <div class="city-item" data-city="成都" data-adcode="028">成都</div>
+                    <div class="city-item" data-city="重庆" data-adcode="023">重庆</div>
+                    <div class="city-item" data-city="西安" data-adcode="029">西安</div>
+                    <div class="city-item" data-city="天津" data-adcode="022">天津</div>
+                    <div class="city-item" data-city="苏州" data-adcode="0512">苏州</div>
+                    <div class="city-item" data-city="厦门" data-adcode="0592">厦门</div>
+                    <div class="city-item" data-city="青岛" data-adcode="0532">青岛</div>
+                    <div class="city-item" data-city="大连" data-adcode="0411">大连</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 美食分享模态框 -->
+    <div id="share-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>分享美食</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="share-preview" class="share-preview">
+                    <div class="share-preview-img">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                    <div class="share-preview-info">
+                        <h3>未选择地点</h3>
+                        <p>请先在地图上选择一个地点</p>
+                    </div>
+                </div>
+                <form id="share-form" class="share-form">
+                    <div class="form-group">
+                        <label for="share-rating">评分</label>
+                        <select id="share-rating" required>
+                            <option value="5">5分 - 超赞</option>
+                            <option value="4" selected>4分 - 很好</option>
+                            <option value="3">3分 - 一般</option>
+                            <option value="2">2分 - 较差</option>
+                            <option value="1">1分 - 很差</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="share-comments">评价</label>
+                        <textarea id="share-comments" rows="4" placeholder="分享您的用餐体验..." required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="share-image">上传图片</label>
+                        <input type="file" id="share-image" accept="image/*">
+                    </div>
+                    <button type="submit" class="btn-submit">发布分享</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 收藏夹模态框 -->
+    <div id="favorites-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>我的收藏</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="favorites-list" class="favorites-list">
+                    <!-- 收藏的地点将动态加载到这里 -->
+                </div>
+                <div id="empty-favorites" class="no-results">
+                    <p>您还没有收藏任何地点</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- AI助手悬浮按钮 -->
+    <button id="open-assistant" class="open-assistant-btn">
+        <i class="fas fa-robot"></i>
+    </button>
+    
+    <!-- AI助手聊天窗口 -->
+    <div id="ai-assistant" class="ai-assistant">
+        <div class="chat-header">
+            <h3>AI美食助手</h3>
+            <button id="close-chat" class="close-btn">&times;</button>
+        </div>
+        <div id="chat-messages" class="chat-messages">
+            <!-- 消息内容将动态加载到这里 -->
+        </div>
+        <div class="chat-input">
+            <input type="text" id="user-input" placeholder="问我关于美食的问题...">
+            <button id="send-message"><i class="fas fa-paper-plane"></i></button>
+        </div>
+        <div id="suggestions" class="chat-suggestions">
+            <div class="suggestion-chip">附近有什么好吃的？</div>
+            <div class="suggestion-chip">推荐火锅店</div>
+            <div class="suggestion-chip">帮我规划美食路线</div>
+            <div class="suggestion-chip">有什么深夜美食？</div>
+        </div>
+    </div>
+    
+    <!-- 路径引导UI -->
+    <div id="route-guidance" class="route-guidance">
+        <div class="route-header">
+            <h3>美食探索路线</h3>
+            <button id="close-route" class="route-close">&times;</button>
+        </div>
+        <div id="route-stops" class="route-stops">
+            <!-- 路线站点将动态加载到这里 -->
+        </div>
+        <div class="route-actions">
+            <button id="start-navigation" class="route-btn primary">
+                <i class="fas fa-directions"></i> 开始导航
+            </button>
+            <button id="modify-route" class="route-btn secondary">
+                <i class="fas fa-edit"></i> 修改路线
+            </button>
+        </div>
+    </div>
+    
+    <!-- FAB菜单 -->
+    <div id="fab-menu" class="fab-menu">
+        <div class="fab-item">
+            <div class="fab-label">规划美食路线</div>
+            <button class="fab-button route" id="fab-route">
+                <i class="fas fa-route"></i>
+            </button>
+        </div>
+        <div class="fab-item">
+            <div class="fab-label">收藏此地点</div>
+            <button class="fab-button favorite" id="fab-favorite">
+                <i class="fas fa-heart"></i>
+            </button>
+        </div>
+        <div class="fab-item">
+            <div class="fab-label">分享美食体验</div>
+            <button class="fab-button share" id="fab-share">
+                <i class="fas fa-share-alt"></i>
+            </button>
+        </div>
+    </div>
+    
+    <!-- 提示消息 -->
+    <div id="toast" class="toast"></div>
+
+<script type="text/javascript">
+// 初始化全局变量
+var map = null;
+var placeSearch = null;
+var infoWindow = null;
+var markers = [];
+var favorites = JSON.parse(localStorage.getItem('foodExplorerFavorites')) || [];
+var sharedPosts = JSON.parse(localStorage.getItem('foodExplorerSharedPosts')) || [];
+var currentPOI = null;
+
+// 定义全局分页变量
+var currentPage = 1;
+var currentTotalPages = 1;
+var isLoading = false;
+
+// 城市信息
+var currentCity = {
+    name: '北京',
+    adcode: '010'
+};
+
+// 初始化搜索关键词
+var currentKeyword = '美食';
+
+// AI助手配置
+const AI_ASSISTANT = {
+    apiKey: 'sk-0AvjMPgKyTW1HvBmFe18Cc90C32b48DbAb921e4cBb4eB4B2',
+    conversationHistory: [],
+    currentLocation: null,
+    userPreferences: {
+        favoriteCuisines: [],
+        dietaryRestrictions: [],
+        priceRange: null,
+        previousSearches: []
+    }
+};
+
+// 初始化地图
+function initMap() {
+    map = new AMap.Map("container", {
+        resizeEnable: true,
+        zoom: 12,
+        center: [116.397428, 39.90923] // 默认北京中心
+    });
+    
+    // 创建自定义信息窗体
+    infoWindow = new AMap.InfoWindow({
+        isCustom: true,
+        autoMove: true,
+        offset: new AMap.Pixel(0, -40)
+    });
+    
+    // 获取用户位置
+    getCityByIP();
+    
+    // 添加地图控件
+    map.plugin(['AMap.ToolBar', 'AMap.Scale'], function() {
+        map.addControl(new AMap.ToolBar());
+        map.addControl(new AMap.Scale());
+    });
+    
+    // 点击地图关闭信息窗体
+    map.on('click', function() {
+        infoWindow.close();
+    });
+}
+
+// 设置城市选择器文本
+function updateCityText() {
+    document.querySelector('#current-city span').textContent = currentCity.name;
+}
+
+// 获取用户所在城市
+function getCityByIP() {
+    // 实例化城市查询类
+    var citysearch = new AMap.CitySearch();
+    
+    // 自动获取用户IP，返回当前城市
+    citysearch.getLocalCity(function(status, result) {
+        if (status === 'complete' && result.info === 'OK') {
+            if (result && result.city && result.bounds) {
+                currentCity = {
+                    name: result.city,
+                    adcode: result.adcode
+                };
+                
+                updateCityText();
+                
+                // 地图显示当前城市
+                map.setBounds(result.bounds);
+                
+                // 初始化搜索
+                initPlaceSearch();
+                
+                // 加载社区分享内容
+                loadCommunityContent();
+            }
+        } else {
+            // 如果IP定位失败，使用默认城市
+            updateCityText();
+            initPlaceSearch();
+            loadCommunityContent();
+        }
+    });
+    
+    // 获取用户精确位置
+    getCurrentLocation();
+}
+
+// 获取当前精确位置
+function getCurrentLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                const coords = [position.coords.longitude, position.coords.latitude];
+                AI_ASSISTANT.currentLocation = coords;
+                
+                // 标记用户位置
+                markUserLocation(coords);
+            },
+            function(error) {
+                console.error("Error getting location:", error);
+                // 如果无法获取位置，使用当前地图中心点
+                const center = map.getCenter();
+                AI_ASSISTANT.currentLocation = [center.lng, center.lat];
+                
+                // 标记地图中心作为用户位置
+                markUserLocation([center.lng, center.lat]);
+            }
+        );
+    } else {
+        // 如果浏览器不支持地理定位，使用地图中心点
+        const center = map.getCenter();
+        AI_ASSISTANT.currentLocation = [center.lng, center.lat];
+        
+        // 标记地图中心作为用户位置
+        markUserLocation([center.lng, center.lat]);
+    }
+}
+
+// 在地图上标记用户当前位置
+function markUserLocation(location) {
+    // 清除之前的用户位置标记
+    map.remove(markers.filter(marker => marker.getExtData && marker.getExtData().type === 'userLocation'));
+    
+    // 创建位置
+    const position = new AMap.LngLat(location[0], location[1]);
+    
+    // 创建用户位置标记
+    var userMarker = new AMap.Marker({
+        position: position,
+        icon: new AMap.Icon({
+            // 使用自定义图标
+            image: 'https://webapi.amap.com/theme/v1.3/markers/n/mark_b.png',
+            size: new AMap.Size(25, 34),
+            imageSize: new AMap.Size(25, 34)
+        }),
+        offset: new AMap.Pixel(-12, -34),
+        zIndex: 200,
+        title: '我的位置'
+    });
+    
+    // 设置扩展数据，用于后续筛选
+    userMarker.setExtData({
+        type: 'userLocation'
+    });
+    
+    map.add(userMarker);
+    markers.push(userMarker);
+    map.setCenter(position);
+    
+    // 添加定位精度圈
+    var circle = new AMap.Circle({
+        center: position,
+        radius: 100,  // 精度范围（米）
+        fillColor: '#1791fc',
+        fillOpacity: 0.1,
+        strokeColor: '#1791fc',
+        strokeOpacity: 0.3,
+        strokeWeight: 1
+    });
+    map.add(circle);
+    
+    return userMarker;
+}
+
+// 初始化POI搜索
+function initPlaceSearch() {
+    placeSearch = new AMap.PlaceSearch({
+        pageSize: 20,
+        pageIndex: 1,
+        city: currentCity.adcode, 
+        citylimit: true,
+        autoFitView: true,
+        extensions: 'all'
+    });
+    
+    // 自定义结果列表
+    placeSearch.on('complete', function(results) {
+        document.querySelector('.loading').style.display = 'none';
+        if (results.info === 'OK') {
+            customizeResultList(results.poiList.pois);
+            addMarkersToMap(results.poiList.pois);
+            
+            // 保存总页数用于分页加载
+            currentTotalPages = Math.ceil(results.poiList.count / results.poiList.pageSize);
+            currentPage = 1;
+        } else {
+            document.getElementById('results-content').innerHTML = '<div class="no-results">没有找到相关结果</div>';
+        }
+    });
+    
+    // 初始搜索
+    searchPOI();
+}
+
+// 搜索POI
+function searchPOI() {
+    if (!placeSearch) {
+        return; // 避免在初始化完成前调用
+    }
+    
+    // 清除原有标记点
+    clearMarkers();
+    
+    document.querySelector('.loading').style.display = 'block';
+    placeSearch.setCity(currentCity.adcode);
+    placeSearch.setType('餐饮');
+    placeSearch.setPageIndex(1); // 重置到第一页
+    currentPage = 1;
+    
+    // 使用搜索关键词直接搜索
+    placeSearch.search(currentKeyword, function(status, result) {
+        document.querySelector('.loading').style.display = 'none';
+        if (status === 'error' || status === 'no_data') {
+            document.getElementById('results-content').innerHTML = '<div class="no-results">没有找到相关结果</div>';
+        }
+    });
+}
+
+// 搜索更多结果（下一页）
+function searchMorePOI() {
+    if (isLoading || currentPage >= currentTotalPages) return;
+    
+    isLoading = true;
+    document.querySelector('.loading').style.display = 'block';
+    
+    currentPage++;
+    placeSearch.setPageIndex(currentPage);
+    
+    placeSearch.search(currentKeyword, function(status, result) {
+        document.querySelector('.loading').style.display = 'none';
+        isLoading = false;
+        
+        if (status === 'complete' && result.info === 'OK') {
+            // 追加结果而不是替换
+            appendResultList(result.poiList.pois);
+            addMarkersToMap(result.poiList.pois, true); // true表示追加而非替换
+        }
+    });
+}
+
+// 清除地图标记点
+function clearMarkers() {
+    if (markers.length > 0) {
+        map.remove(markers);
+        markers = [];
+    }
+}
+
+// 在地图上添加标记点
+function addMarkersToMap(pois, append = false) {
+    if (!append) {
+        clearMarkers();
+    }
+    
+    pois.forEach(function(poi) {
+        var marker = new AMap.Marker({
+            position: poi.location,
+            title: poi.name,
+            map: map
+        });
+        
+        marker.on('click', function() {
+            showInfoWindow(poi);
+            currentPOI = poi;
+        });
+        
+        markers.push(marker);
+    });
+}
+
+// 显示自定义信息窗体
+function showInfoWindow(poi) {
+    // 随机生成评分和价格
+    var rating = (Math.random() * 1.0 + 4.0).toFixed(1);
+    var price = Math.floor(Math.random() * 180 + 20);
+    
+    // 生成星星
+    var stars = '';
+    var fullStars = Math.floor(rating);
+    var halfStar = rating % 1 >= 0.5;
+    
+    for (var i = 0; i < 5; i++) {
+        if (i < fullStars) {
+            stars += '<i class="fas fa-star"></i>';
+        } else if (halfStar && i === fullStars) {
+            stars += '<i class="fas fa-star-half-alt"></i>';
+            halfStar = false;
+        } else {
+            stars += '<i class="far fa-star"></i>';
+        }
+    }
+    
+    // 检查是否已收藏
+    var isFavorite = favorites.some(function(fav) {
+        return fav.id === poi.id;
+    });
+    
+    // 创建信息窗体内容
+    var content = `
+        <div class="custom-info-window">
+            <div class="info-window-header">
+                <div class="info-window-title">${poi.name}</div>
+                <div class="info-window-favorite ${isFavorite ? 'active' : ''}" onclick="toggleFavorite(event)">
+                    <i class="fas fa-heart"></i>
+                </div>
+            </div>
+            <div class="info-window-body">
+                <div class="info-window-rating">${stars} ${rating} · 人均 ¥${price}</div>
+                <div class="info-window-address"><i class="fas fa-map-marker-alt"></i>${poi.address || poi.location.toString()}</div>
+                <div class="info-window-actions">
+                    <button class="info-window-btn navigate" onclick="navigateTo()"><i class="fas fa-directions"></i>导航</button>
+                    <button class="info-window-btn share" onclick="openShareModal()"><i class="fas fa-share-alt"></i>分享</button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    infoWindow.setContent(content);
+    infoWindow.open(map, poi.location);
+    
+    // 显示FAB菜单
+    showFabMenu();
+}
+
+// 自定义结果列表
+function customizeResultList(pois) {
+    var resultsContent = document.getElementById('results-content');
+    resultsContent.innerHTML = '';
+    
+    if (!pois || pois.length === 0) {
+        resultsContent.innerHTML = '<div class="no-results">没有找到相关结果</div>';
+        return;
+    }
+    
+    pois.forEach(function(poi) {
+        var item = document.createElement('div');
+        item.className = 'result-item';
+        
+        // 随机生成评分和价格
+        var rating = (Math.random() * 1.0 + 4.0).toFixed(1);
+        var price = Math.floor(Math.random() * 180 + 20);
+        
+        // 生成星星
+        var stars = '';
+        var fullStars = Math.floor(rating);
+        var halfStar = rating % 1 >= 0.5;
+        
+        for (var i = 0; i < 5; i++) {
+            if (i < fullStars) {
+                stars += '<i class="fas fa-star"></i>';
+            } else if (halfStar && i === fullStars) {
+                stars += '<i class="fas fa-star-half-alt"></i>';
+                halfStar = false;
+            } else {
+                stars += '<i class="far fa-star"></i>';
+            }
+        }
+        
+        // 检查是否已收藏
+        var isFavorite = favorites.some(function(fav) {
+            return fav.id === poi.id;
+        });
+        
+        item.innerHTML = `
+            <h3>${poi.name}</h3>
+            <div class="rating">${stars} ${rating} · 人均 ¥${price}</div>
+            <p>${poi.type || '特色美食'}</p>
+            <div class="address"><i class="fas fa-map-marker-alt"></i>${poi.address || poi.location.toString()}</div>
+            <button class="favorite-btn ${isFavorite ? 'active' : ''}" data-id="${poi.id}">
+                <i class="fas fa-heart"></i>
+            </button>
+        `;
+        
+        // 点击结果项显示信息窗口
+        item.addEventListener('click', function(e) {
+            if (!e.target.closest('.favorite-btn')) {
+                map.setCenter(poi.location);
+                map.setZoom(15);
+                showInfoWindow(poi);
+                currentPOI = poi;
+            }
+        });
+        
+        // 收藏按钮点击事件
+        var favBtn = item.querySelector('.favorite-btn');
+        favBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            var id = this.getAttribute('data-id');
+            toggleFavoriteById(id, poi, this);
+        });
+        
+        resultsContent.appendChild(item);
+    });
+}
+
+// 追加结果到列表
+function appendResultList(pois) {
+    var resultsContent = document.getElementById('results-content');
+    
+    if (!pois || pois.length === 0) return;
+    
+    pois.forEach(function(poi) {
+        var item = document.createElement('div');
+        item.className = 'result-item';
+        
+        // 随机生成评分和价格
+        var rating = (Math.random() * 1.0 + 4.0).toFixed(1);
+        var price = Math.floor(Math.random() * 180 + 20);
+        
+        // 生成星星
+        var stars = '';
+        var fullStars = Math.floor(rating);
+        var halfStar = rating % 1 >= 0.5;
+        
+        for (var i = 0; i < 5; i++) {
+            if (i < fullStars) {
+                stars += '<i class="fas fa-star"></i>';
+            } else if (halfStar && i === fullStars) {
+                stars += '<i class="fas fa-star-half-alt"></i>';
+                halfStar = false;
+            } else {
+                stars += '<i class="far fa-star"></i>';
+            }
+        }
+        
+        // 检查是否已收藏
+        var isFavorite = favorites.some(function(fav) {
+            return fav.id === poi.id;
+        });
+        
+        item.innerHTML = `
+            <h3>${poi.name}</h3>
+            <div class="rating">${stars} ${rating} · 人均 ¥${price}</div>
+            <p>${poi.type || '特色美食'}</p>
+            <div class="address"><i class="fas fa-map-marker-alt"></i>${poi.address || poi.location.toString()}</div>
+            <button class="favorite-btn ${isFavorite ? 'active' : ''}" data-id="${poi.id}">
+                <i class="fas fa-heart"></i>
+            </button>
+        `;
+        
+        // 点击结果项显示信息窗口
+        item.addEventListener('click', function(e) {
+            if (!e.target.closest('.favorite-btn')) {
+                map.setCenter(poi.location);
+                map.setZoom(15);
+                showInfoWindow(poi);
+                currentPOI = poi;
+            }
+        });
+        
+        // 收藏按钮点击事件
+        var favBtn = item.querySelector('.favorite-btn');
+        favBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            var id = this.getAttribute('data-id');
+            toggleFavoriteById(id, poi, this);
+        });
+        
+        resultsContent.appendChild(item);
+    });
+}
+
+// 切换收藏状态
+function toggleFavorite(event) {
+    event.stopPropagation();
+    if (!currentPOI) return;
+    
+    var favoriteBtn = event.currentTarget;
+    var isFavorite = favoriteBtn.classList.contains('active');
+    
+    if (isFavorite) {
+        // 取消收藏
+        favorites = favorites.filter(function(fav) {
+            return fav.id !== currentPOI.id;
+        });
+        favoriteBtn.classList.remove('active');
+        showToast('已取消收藏');
+    } else {
+        // 添加收藏
+        favorites.push({
+            id: currentPOI.id,
+            name: currentPOI.name,
+            address: currentPOI.address || currentPOI.location.toString(),
+            location: [currentPOI.location.lng, currentPOI.location.lat],
+            type: currentPOI.type || '特色美食'
+        });
+        favoriteBtn.classList.add('active');
+        showToast('已添加到收藏');
+    }
+    
+    // 更新本地存储
+    localStorage.setItem('foodExplorerFavorites', JSON.stringify(favorites));
+    
+    // 更新结果列表中的收藏状态
+    updateResultListFavoriteStatus();
+}
+
+// 根据ID切换收藏状态
+function toggleFavoriteById(id, poi, button) {
+    var isFavorite = button.classList.contains('active');
+    
+    if (isFavorite) {
+        // 取消收藏
+        favorites = favorites.filter(function(fav) {
+            return fav.id !== id;
+        });
+        button.classList.remove('active');
+        showToast('已取消收藏');
+    } else {
+        // 添加收藏
+        favorites.push({
+            id: id,
+            name: poi.name,
+            address: poi.address || poi.location.toString(),
+            location: [poi.location.lng, poi.location.lat],
+            type: poi.type || '特色美食'
+        });
+        button.classList.add('active');
+        showToast('已添加到收藏');
+    }
+    
+    // 更新本地存储
+    localStorage.setItem('foodExplorerFavorites', JSON.stringify(favorites));
+    
+    // 如果信息窗口正在显示该POI，也更新其收藏状态
+    if (currentPOI && currentPOI.id === id && infoWindow.getIsOpen()) {
+        var favoriteBtn = document.querySelector('.info-window-favorite');
+        if (isFavorite) {
+            favoriteBtn.classList.remove('active');
+        } else {
+            favoriteBtn.classList.add('active');
+        }
+    }
+}
+
+// 更新结果列表中的收藏状态
+function updateResultListFavoriteStatus() {
+    var favBtns = document.querySelectorAll('.result-item .favorite-btn');
+    favBtns.forEach(function(btn) {
+        var id = btn.getAttribute('data-id');
+        var isFavorite = favorites.some(function(fav) {
+            return fav.id === id;
+        });
+        
+        if (isFavorite) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+}
+
+// 显示收藏列表
+function showFavorites() {
+    var favoritesList = document.getElementById('favorites-list');
+    var emptyFavorites = document.getElementById('empty-favorites');
+    
+    favoritesList.innerHTML = '';
+    
+    if (favorites.length === 0) {
+        favoritesList.style.display = 'none';
+        emptyFavorites.style.display = 'block';
+        return;
+    }
+    
+    favoritesList.style.display = 'block';
+    emptyFavorites.style.display = 'none';
+    
+    favorites.forEach(function(fav) {
+        var item = document.createElement('div');
+        item.className = 'favorites-item';
+        
+        item.innerHTML = `
+            <div class="favorites-info">
+                <h3>${fav.name}</h3>
+                <p>${fav.type}</p>
+                <p class="address"><i class="fas fa-map-marker-alt"></i>${fav.address}</p>
+            </div>
+            <div class="favorites-actions">
+                <button class="delete-favorite" data-id="${fav.id}"><i class="fas fa-trash"></i></button>
+            </div>
+        `;
+        
+        // 点击收藏项，定位到地图
+        item.addEventListener('click', function(e) {
+            if (!e.target.closest('.delete-favorite')) {
+                var location = new AMap.LngLat(fav.location[0], fav.location[1]);
+                map.setCenter(location);
+                map.setZoom(15);
+                
+                // 创建临时POI对象用于显示信息窗体
+                var tempPOI = {
+                    id: fav.id,
+                    name: fav.name,
+                    address: fav.address,
+                    location: location,
+                    type: fav.type
+                };
+                
+                showInfoWindow(tempPOI);
+                currentPOI = tempPOI;
+                
+                // 关闭收藏夹模态框
+                closeModal('favorites-modal');
+            }
+        });
+        
+        // 删除收藏按钮点击事件
+        var deleteBtn = item.querySelector('.delete-favorite');
+        deleteBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            var id = this.getAttribute('data-id');
+            
+            // 从收藏列表中移除
+            favorites = favorites.filter(function(fav) {
+                return fav.id !== id;
+            });
+            
+            // 更新本地存储
+            localStorage.setItem('foodExplorerFavorites', JSON.stringify(favorites));
+            
+            // 从DOM中移除
+            item.remove();
+            
+            // 更新结果列表中的收藏状态
+            updateResultListFavoriteStatus();
+            
+            // 如果收藏列表为空，显示空提示
+            if (favorites.length === 0) {
+                favoritesList.style.display = 'none';
+                emptyFavorites.style.display = 'block';
+            }
+            
+            showToast('已从收藏中移除');
+        });
+        
+        favoritesList.appendChild(item);
+    });
+}
+
+// 导航功能
+function navigateTo() {
+    if (!currentPOI) return;
+    
+    // 构建导航URL
+    var url = `https://uri.amap.com/navigation?to=${currentPOI.location.lng},${currentPOI.location.lat},${encodeURIComponent(currentPOI.name)}&mode=car&src=myapp&callnative=1`;
+    
+    // 打开导航
+    window.open(url, '_blank');
+}
+
+// 加载社区分享内容
+function loadCommunityContent() {
+    var communityContent = document.getElementById('community-content');
+    
+    // 筛选当前城市的分享
+    var cityPosts = sharedPosts.filter(function(post) {
+        return post.city === currentCity.name;
+    });
+    
+    if (cityPosts.length === 0) {
+        communityContent.innerHTML = '<div class="no-results">暂无分享内容</div>';
+        return;
+    }
+    
+    communityContent.innerHTML = '';
+    
+    // 按时间倒序排列
+    cityPosts.sort(function(a, b) {
+        return new Date(b.time) - new Date(a.time);
+    });
+    
+    cityPosts.forEach(function(post) {
+        var item = document.createElement('div');
+        item.className = 'shared-food-item';
+        
+        // 生成星星
+        var stars = '';
+        for (var i = 0; i < 5; i++) {
+            if (i < post.rating) {
+                stars += '<i class="fas fa-star"></i>';
+            } else {
+                stars += '<i class="far fa-star"></i>';
+            }
+        }
+        
+        // 格式化时间
+        var postTime = new Date(post.time);
+        var timeString = postTime.toLocaleDateString('zh-CN') + ' ' + postTime.toLocaleTimeString('zh-CN', {hour: '2-digit', minute:'2-digit'});
+        
+        item.innerHTML = `
+            <div class="shared-food-header">
+                <div class="shared-user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="shared-user-info">
+                    <div class="shared-user-name">美食爱好者</div>
+                    <div class="shared-time">${timeString}</div>
+                </div>
+            </div>
+            <div class="shared-food-content">
+                <h3>${post.name}</h3>
+                <div class="rating">${stars} · ${post.address}</div>
+                <p>${post.comments}</p>
+                ${post.image ? `<div class="shared-food-image" style="background-image: url(${post.image}); background-size: cover;"></div>` : ''}
+            </div>
+            <div class="shared-food-actions">
+                <button class="like-btn"><i class="far fa-thumbs-up"></i> 点赞</button>
+                <button class="comment-btn"><i class="far fa-comment"></i> 评论</button>
+                <button class="navigate-btn" data-lng="${post.location[0]}" data-lat="${post.location[1]}" data-name="${post.name}"><i class="fas fa-map-marker-alt"></i> 查看位置</button>
+            </div>
+        `;
+        
+        // 点击查看位置按钮
+        var navigateBtn = item.querySelector('.navigate-btn');
+        navigateBtn.addEventListener('click', function() {
+            var lng = parseFloat(this.getAttribute('data-lng'));
+            var lat = parseFloat(this.getAttribute('data-lat'));
+            var name = this.getAttribute('data-name');
+            
+            var location = new AMap.LngLat(lng, lat);
+            map.setCenter(location);
+            map.setZoom(15);
+            
+            // 创建临时POI对象用于显示信息窗体
+            var tempPOI = {
+                id: 'share_' + Date.now(),
+                name: name,
+                address: post.address,
+                location: location,
+                type: '分享的美食'
+            };
+            
+            showInfoWindow(tempPOI);
+            currentPOI = tempPOI;
+            
+            // 切换到搜索结果标签
+            switchTab('results');
+        });
+        
+        // 点赞按钮点击事件
+        var likeBtn = item.querySelector('.like-btn');
+        likeBtn.addEventListener('click', function() {
+            if (this.classList.contains('active')) {
+                this.classList.remove('active');
+                this.innerHTML = '<i class="far fa-thumbs-up"></i> 点赞';
+            } else {
+                this.classList.add('active');
+                this.innerHTML = '<i class="fas fa-thumbs-up"></i> 已点赞';
+                showToast('谢谢您的点赞！');
+            }
+        });
+        
+        // 评论按钮点击事件
+        var commentBtn = item.querySelector('.comment-btn');
+        commentBtn.addEventListener('click', function() {
+            showToast('评论功能即将上线');
+        });
+        
+        communityContent.appendChild(item);
+    });
+}
+
+// 分享美食
+function shareFood() {
+    if (!currentPOI) {
+        showToast('请先选择一个地点');
+        return;
+    }
+    
+    var shareRating = document.getElementById('share-rating').value;
+    var shareComments = document.getElementById('share-comments').value;
+    var shareImage = document.getElementById('share-image').files[0];
+    
+    if (!shareComments.trim()) {
+        showToast('请输入您的评价');
+        return;
+    }
+    
+    // 创建新的分享帖子
+    var newPost = {
+        id: 'post_' + Date.now(),
+        name: currentPOI.name,
+        address: currentPOI.address || currentPOI.location.toString(),
+        location: [currentPOI.location.lng, currentPOI.location.lat],
+        rating: parseInt(shareRating),
+        comments: shareComments,
+        city: currentCity.name,
+        time: new Date().toISOString(),
+        image: null
+    };
+    
+    // 如果有图片，转换为base64
+    if (shareImage) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            newPost.image = e.target.result;
+            
+            // 添加到分享列表
+            sharedPosts.push(newPost);
+            localStorage.setItem('foodExplorerSharedPosts', JSON.stringify(sharedPosts));
+            
+            // 重新加载社区内容
+            loadCommunityContent();
+            
+            // 切换到社区标签
+            switchTab('community');
+            
+            // 关闭模态框
+            closeModal('share-modal');
+            
+            // 清空表单
+            document.getElementById('share-form').reset();
+            
+            showToast('分享成功！');
+        };
+        reader.readAsDataURL(shareImage);
+    } else {
+        // 添加到分享列表
+        sharedPosts.push(newPost);
+        localStorage.setItem('foodExplorerSharedPosts', JSON.stringify(sharedPosts));
+        
+        // 重新加载社区内容
+        loadCommunityContent();
+        
+        // 切换到社区标签
+        switchTab('community');
+        
+        // 关闭模态框
+        closeModal('share-modal');
+        
+        // 清空表单
+        document.getElementById('share-form').reset();
+        
+        showToast('分享成功！');
+    }
+}
+
+// 更新分享预览
+function updateSharePreview() {
+    if (!currentPOI) return;
+    
+    var previewContainer = document.getElementById('share-preview');
+    previewContainer.innerHTML = `
+        <div class="share-preview-img">
+            <i class="fas fa-utensils"></i>
+        </div>
+        <div class="share-preview-info">
+            <h3>${currentPOI.name}</h3>
+            <p>${currentPOI.address || currentPOI.location.toString()}</p>
+        </div>
+    `;
+}
+
+// 显示模态框
+function openModal(id) {
+    document.getElementById(id).classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+// 关闭模态框
+function closeModal(id) {
+    document.getElementById(id).classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+// 切换标签
+function switchTab(tabId) {
+    document.querySelectorAll('.tab').forEach(function(tab) {
+        tab.classList.remove('active');
+    });
+    document.querySelectorAll('.tab-content').forEach(function(content) {
+        content.classList.remove('active');
+    });
+    
+    document.querySelector(`.tab[data-tab="${tabId}"]`).classList.add('active');
+    document.getElementById(`${tabId}-content`).classList.add('active');
+}
+
+// 显示提示消息
+function showToast(message) {
+    var toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.classList.add('show');
+    
+    setTimeout(function() {
+        toast.classList.remove('show');
+    }, 2000);
+}
+
+// 显示FAB菜单
+function showFabMenu() {
+    document.getElementById('fab-menu').classList.add('active');
+}
+
+// 隐藏FAB菜单
+function hideFabMenu() {
+    document.getElementById('fab-menu').classList.remove('active');
+}
+
+// 标记搜索中心点
+function markSearchCenter(position) {
+    // 清除之前的标记
+    map.remove(markers.filter(marker => marker.getExtData && marker.getExtData().type === 'searchCenter'));
+    
+    // 创建搜索中心标记
+    var centerMarker = new AMap.Marker({
+        position: position,
+        icon: new AMap.Icon({
+            // 使用自定义图标
+            image: 'https://webapi.amap.com/theme/v1.3/markers/n/mark_r.png',
+            size: new AMap.Size(25, 34),
+            imageSize: new AMap.Size(25, 34)
+        }),
+        offset: new AMap.Pixel(-12, -34),
+        zIndex: 100,
+        title: '搜索中心'
+    });
+    
+    // 设置扩展数据，用于后续筛选
+    centerMarker.setExtData({
+        type: 'searchCenter'
+    });
+    
+    map.add(centerMarker);
+    markers.push(centerMarker);
+}
+
+// AI助手功能
+
+// 初始化AI助手
+function initAIAssistant() {
+    // 添加欢迎消息
+    addMessage("你好！我是你的AI美食助手。想知道附近有什么好吃的，或者需要美食规划吗？", "ai");
+    
+    // 初始化建议问题
+    initSuggestions();
+}
+
+// 添加收起/展开功能的快捷输入组件
+function createCollapsibleSuggestions() {
+    // 创建容器
+    const suggestionsContainer = document.getElementById('suggestions');
+    if (!suggestionsContainer) return;
+    
+    // 清空现有内容
+    suggestionsContainer.innerHTML = '';
+    
+    // 添加标题栏（可点击展开/收起）
+    const titleBar = document.createElement('div');
+    titleBar.className = 'suggestions-title';
+    titleBar.innerHTML = `
+        <span>常见问题</span>
+        <i class="fas fa-chevron-down"></i>
+    `;
+    suggestionsContainer.appendChild(titleBar);
+    
+    // 创建建议内容容器
+    const suggestionsContent = document.createElement('div');
+    suggestionsContent.className = 'suggestions-content';
+    suggestionsContent.style.display = 'none'; // 默认收起
+    suggestionsContainer.appendChild(suggestionsContent);
+    
+    // 添加建议选项
+    const suggestions = [
+        "附近有什么好吃的火锅店？",
+        "推荐几家距离我500米内的咖啡厅",
+        "帮我规划一个3小时的美食路线",
+        "有什么适合带孩子去的餐厅？"
+    ];
+    
+    suggestions.forEach(text => {
+        const chip = document.createElement('div');
+        chip.className = 'suggestion-chip';
+        chip.textContent = text;
+        chip.addEventListener('click', function() {
+            document.getElementById('user-input').value = this.textContent;
+            sendUserMessage();
+        });
+        suggestionsContent.appendChild(chip);
+    });
+    
+    // 添加展开/收起功能
+    titleBar.addEventListener('click', function() {
+        const isExpanded = suggestionsContent.style.display !== 'none';
+        if (isExpanded) {
+            suggestionsContent.style.display = 'none';
+            titleBar.querySelector('i').className = 'fas fa-chevron-down';
+        } else {
+            suggestionsContent.style.display = 'flex';
+            titleBar.querySelector('i').className = 'fas fa-chevron-up';
+        }
+    });
+    
+    // 添加CSS
+    const styleElement = document.createElement('style');
+    styleElement.textContent = `
+        .suggestions-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background-color: var(--ios-bg);
+            border-radius: 10px;
+            margin-bottom: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--ios-primary);
+            font-weight: 500;
+        }
+        
+        .suggestions-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 5px 10px 10px 10px;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .chat-suggestions {
+            border-top: 1px solid var(--ios-border);
+            padding: 10px;
+            background: var(--ios-card-bg);
+        }
+    `;
+    document.head.appendChild(styleElement);
+}
+
+// 替换原有的初始化建议问题函数
+function initSuggestions() {
+    createCollapsibleSuggestions();
+}
+// 切换助手显示/隐藏
+function toggleAssistant(show) {
+    const assistant = document.getElementById('ai-assistant');
+    if (show) {
+        assistant.classList.add('active');
+    } else {
+        assistant.classList.toggle('active');
+    }
+}
+
+// 添加消息到聊天界面
+function addMessage(message, sender, extraContent = null) {
+    const messagesDiv = document.getElementById('chat-messages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${sender}-message`;
+    
+    // 处理普通文本消息
+    messageDiv.innerHTML = `<p>${message}</p>`;
+    
+    // 如果有额外内容（如POI信息）
+    if (extraContent) {
+        if (extraContent.type === 'poi') {
+            const poiInfo = document.createElement('div');
+            poiInfo.className = 'map-poi-info';
+            poiInfo.innerHTML = `
+                <h4>${extraContent.name}</h4>
+                <p>${extraContent.address}</p>
+                <div class="poi-actions">
+                    <button class="poi-action-btn view" data-lng="${extraContent.location[0]}" data-lat="${extraContent.location[1]}">
+                        <i class="fas fa-map-marker-alt"></i> 查看位置
+                    </button>
+                    <button class="poi-action-btn navigate" data-lng="${extraContent.location[0]}" data-lat="${extraContent.location[1]}">
+                        <i class="fas fa-directions"></i> 导航
+                    </button>
+                </div>
+            `;
+            messageDiv.appendChild(poiInfo);
+            
+            // 为POI按钮添加事件
+            setTimeout(() => {
+                poiInfo.querySelectorAll('.poi-action-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const action = this.classList.contains('view') ? 'view' : 'navigate';
+                        const lng = this.getAttribute('data-lng');
+                        const lat = this.getAttribute('data-lat');
+                        
+                        if (action === 'view') {
+                            map.setCenter([lng, lat]);
+                            map.setZoom(15);
+                        } else if (action === 'navigate') {
+                            // 使用高德导航
+                            const url = `https://uri.amap.com/navigation?to=${lng},${lat},${encodeURIComponent(extraContent.name)}&mode=car&src=myapp&callnative=1`;
+                            window.open(url, '_blank');
+                        }
+                    });
+                });
+            }, 0);
+        } else if (extraContent.type === 'route') {
+            // 路线信息展示
+            showRouteGuidance(extraContent.stops);
+        }
+    }
+    
+    messagesDiv.appendChild(messageDiv);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+// 发送用户消息
+async function sendUserMessage() {
+    const userInput = document.getElementById('user-input');
+    const message = userInput.value.trim();
+    
+    if (!message) return;
+    
+    // 添加用户消息到界面
+    addMessage(message, 'user');
+    
+    // 清空输入框
+    userInput.value = '';
+    
+    // 显示思考中提示
+    const thinkingDiv = document.createElement('div');
+    thinkingDiv.className = 'ai-thinking';
+    thinkingDiv.innerHTML = `
+        AI思考中
+        <div class="thinking-dots">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    `;
+    document.getElementById('chat-messages').appendChild(thinkingDiv);
+    
+    try {
+        // 添加用户消息到历史
+        AI_ASSISTANT.conversationHistory.push({
+            role: "user", 
+            content: message
+        });
+        
+        // 调用OpenAI API
+        const response = await callOpenAI();
+        
+        // 移除思考提示
+        thinkingDiv.remove();
+        
+        // 处理响应
+        if (response.choices && response.choices.length > 0) {
+            const choice = response.choices[0];
+            
+            // 处理工具调用
+            if (choice.message.tool_calls && choice.message.tool_calls.length > 0) {
+                // 将AI请求添加到对话历史
+                AI_ASSISTANT.conversationHistory.push(choice.message);
+                
+                // 显示正在处理消息
+                const processingDiv = document.createElement('div');
+                processingDiv.className = 'ai-thinking';
+                processingDiv.innerHTML = `
+                    正在处理您的请求...
+                    <div class="thinking-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                `;
+                document.getElementById('chat-messages').appendChild(processingDiv);
+                
+                // 处理工具调用并获取结果
+                const toolResults = await handleToolCalls(choice.message.tool_calls);
+                
+                // 移除处理提示
+                processingDiv.remove();
+                
+                // 添加工具调用结果到对话历史
+                toolResults.forEach(result => {
+                    AI_ASSISTANT.conversationHistory.push(result);
+                });
+                
+                // 再次调用API获取最终响应
+                const finalResponse = await callOpenAI();
+                
+                if (finalResponse.choices && finalResponse.choices.length > 0) {
+                    const aiMessage = finalResponse.choices[0].message.content;
+                    addMessage(aiMessage, "ai");
+                    
+                    // 添加到历史
+                    AI_ASSISTANT.conversationHistory.push({
+                        role: "assistant", 
+                        content: aiMessage
+                    });
+                }
+            } else if (choice.message.content) {
+                // 直接显示AI响应
+                const aiMessage = choice.message.content;
+                addMessage(aiMessage, "ai");
+                
+                // 添加到历史
+                AI_ASSISTANT.conversationHistory.push({
+                    role: "assistant", 
+                    content: aiMessage
+                });
+            }
+        }
+    } catch (error) {
+        console.error("Error processing message:", error);
+        thinkingDiv.remove();
+        addMessage("抱歉，处理您的请求时出现了问题。请稍后再试。", "ai");
+    }
+}
+
+// 调用OpenAI API
+async function callOpenAI() {
+    // 获取当前位置
+    const center = map.getCenter();
+    const locationStr = AI_ASSISTANT.currentLocation ? 
+        `${AI_ASSISTANT.currentLocation[0]},${AI_ASSISTANT.currentLocation[1]}` : 
+        `${center.lng},${center.lat}`;
+    
+    // 准备请求体
+    const requestBody = {
+        model: "deepseek-chat", // 使用指定的模型
+        messages: [
+            {
+                role: "system",
+                content: `你是一个专业的美食AI助手，专注于帮助用户发现和规划美食体验。
+                当前城市是${currentCity.name}。
+                当前用户位置坐标是${locationStr}。
+                请以友好、专业的方式回答用户的问题，并根据需要使用工具函数。`
+            },
+            ...AI_ASSISTANT.conversationHistory
+        ],
+        tools: [
+            {
+                type: "function",
+                function: {
+                    name: "searchNearbyFood",
+                    description: "搜索用户附近的美食餐厅",
+                    parameters: {
+                        type: "object",
+                        properties: {
+                            location: {
+                                type: "string",
+                                description: "用户当前位置坐标，格式为'经度,纬度'"
+                            },
+                            keyword: {
+                                type: "string",
+                                description: "搜索关键词，如'火锅'、'日料'等"
+                            },
+                            radius: {
+                                type: "number",
+                                description: "搜索半径，单位为米，默认为3000米"
+                            },
+                            type: {
+                                type: "string",
+                                description: "餐厅类型，如'快餐'、'中餐'、'西餐'等"
+                            }
+                        },
+                        required: ["location"]
+                    }
+                }
+            },
+            {
+                type: "function",
+                function: {
+                    name: "getFoodRecommendations",
+                    description: "基于用户偏好、饮食限制、价格范围和用餐时间推荐美食",
+                    parameters: {
+                        type: "object",
+                        properties: {
+                            location: {
+                                type: "string",
+                                description: "用户当前位置坐标，格式为'经度,纬度'"
+                            },
+                            preferences: {
+                                type: "array",
+                                items: {
+                                    type: "string"
+                                },
+                                description: "用户的食物偏好，如['辣', '海鲜', '甜点']"
+                            },
+                            dietary_restrictions: {
+                                type: "array",
+                                items: {
+                                    type: "string"
+                                },
+                                description: "用户的饮食限制，如['素食', '无麸质', '无坚果']"
+                            },
+                            price_range: {
+                                type: "string",
+                                description: "价格范围，'低价'、'中价'或'高价'"
+                            },
+                            meal_time: {
+                                type: "string",
+                                description: "用餐时间，如'早餐'、'午餐'、'晚餐'、'夜宵'"
+                            }
+                        },
+                        required: ["location"]
+                    }
+                }
+            },
+            {
+                type: "function",
+                function: {
+                    name: "planFoodRoute",
+                    description: "规划一条美食探索路线",
+                    parameters: {
+                        type: "object",
+                        properties: {
+                            start_location: {
+                                type: "string",
+                                description: "起始位置坐标，格式为'经度,纬度'"
+                            },
+                            food_preferences: {
+                                type: "array",
+                                items: {
+                                    type: "string"
+                                },
+                                description: "食物偏好，如['小吃', '甜点', '咖啡']"
+                            },
+                            duration: {
+                                type: "number",
+                                description: "计划的持续时间，单位为小时"
+                            },
+                            transport_mode: {
+                                type: "string",
+                                description: "交通方式，'walking'、'driving'或'transit'"
+                            }
+                        },
+                        required: ["start_location"]
+                    }
+                }
+            }
+        ],
+        tool_choice: "auto"
+    };
+
+    // 发送API请求
+    const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer sk-2e95d4c1be9d4b2aa285639885a82e4e`
+        },
+        body: JSON.stringify(requestBody)
+    });
+
+    // 解析响应
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`API error: ${JSON.stringify(errorData)}`);
+    }
+    
+    return await response.json();
+}
+
+// 处理工具调用
+async function handleToolCalls(toolCalls) {
+    const results = [];
+    
+    for (const call of toolCalls) {
+        if (call.type === 'function') {
+            const functionName = call.function.name;
+            const args = JSON.parse(call.function.arguments);
+            
+            console.log(`执行函数: ${functionName}，参数:`, args);
+            
+            let result;
+            try {
+                // 根据函数名调用相应的函数
+                switch (functionName) {
+                    case 'searchNearbyFood':
+                        result = await realSearchNearbyFood(
+                            args.location || `${AI_ASSISTANT.currentLocation[0]},${AI_ASSISTANT.currentLocation[1]}`, 
+                            args.keyword, 
+                            args.radius || 3000, 
+                            args.type
+                        );
+                        break;
+                    case 'getFoodRecommendations':
+                        result = await realGetFoodRecommendations(
+                            args.location || `${AI_ASSISTANT.currentLocation[0]},${AI_ASSISTANT.currentLocation[1]}`, 
+                            args.preferences, 
+                            args.dietary_restrictions, 
+                            args.price_range, 
+                            args.meal_time
+                        );
+                        break;
+                    case 'planFoodRoute':
+                        result = await realPlanFoodRoute(
+                            args.start_location || `${AI_ASSISTANT.currentLocation[0]},${AI_ASSISTANT.currentLocation[1]}`, 
+                            args.food_preferences, 
+                            args.duration || 3, 
+                            args.transport_mode || 'walking'
+                        );
+                        break;
+                    default:
+                        result = { error: "未知函数" };
+                }
+                
+                console.log(`函数执行结果:`, result);
+                
+                // 将结果添加到工具调用结果中
+                results.push({
+                    tool_call_id: call.id,
+                    role: "tool",
+                    // 将结果转换为JSON字符串
+                    content: JSON.stringify(result)
+                });
+            } catch (error) {
+                console.error(`执行函数${functionName}时出错:`, error);
+                result = { 
+                    status: 'error',
+                    message: `执行函数时出错: ${error.message}`,
+                    error: error.message
+                };
+                
+                // 将错误结果添加到工具调用结果中
+                results.push({
+                    tool_call_id: call.id,
+                    role: "tool",
+                    content: JSON.stringify(result)
+                });
+            }
+        }
+    }
+    
+    // 返回工具调用结果
+    return results;
+}
+
+// 搜索附近美食的实际实现
+async function realSearchNearbyFood(location, keyword = '美食', radius = 3000, type = null) {
+    return new Promise((resolve, reject) => {
+        try {
+            // 显示加载状态
+            document.querySelector('.loading').style.display = 'block';
+            
+            // 更新UI搜索状态
+            currentKeyword = keyword || '美食';
+            document.getElementById('keyword').value = currentKeyword;
+            
+            // 更新分类选中状态
+            document.querySelectorAll('.category').forEach(function(cat) {
+                cat.classList.remove('active');
+                if (cat.dataset.keyword === currentKeyword) {
+                    cat.classList.add('active');
+                }
+            });
+            
+            // 解析位置
+            const [lng, lat] = location.split(',').map(parseFloat);
+            const point = new AMap.LngLat(lng, lat);
+            
+            // 创建搜索实例
+            const placeSearch = new AMap.PlaceSearch({
+                pageSize: 10,
+                pageIndex: 1,
+                extensions: 'all'
+            });
+            
+            // 设置城市
+            placeSearch.setCity(currentCity.adcode);
+            
+            // 设置搜索关键词
+            let searchKeyword = keyword || '美食';
+            if (type) {
+                searchKeyword = `${searchKeyword} ${type}`;
+            }
+            
+            // 标记搜索中心点
+            markSearchCenter(point);
+            
+            // 执行搜索
+            placeSearch.searchNearBy(searchKeyword, point, radius, function(status, result) {
+                // 隐藏加载状态
+                document.querySelector('.loading').style.display = 'none';
+                
+                if (status === 'complete' && result.info === 'OK') {
+                    // 提取餐厅信息
+                    const restaurants = result.poiList.pois.map(poi => ({
+                        id: poi.id,
+                        name: poi.name,
+                        address: poi.address || '地址未知',
+                        location: [poi.location.lng, poi.location.lat],
+                        type: poi.type || '餐饮',
+                        distance: poi.distance,
+                        tel: poi.tel || '电话未知'
+                    }));
+                    
+                    // 添加标记到地图
+                    addMarkersToMap(result.poiList.pois);
+                    
+                    // 更新搜索结果UI
+                    customizeResultList(result.poiList.pois);
+                    
+                    resolve({
+                        status: 'success',
+                        count: restaurants.length,
+                        restaurants: restaurants
+                    });
+                } else {
+                    resolve({
+                        status: 'error',
+                        message: '没有找到符合条件的餐厅',
+                        restaurants: []
+                    });
+                }
+            });
+        } catch (error) {
+            console.error("Error in realSearchNearbyFood:", error);
+            document.querySelector('.loading').style.display = 'none';
+            resolve({
+                status: 'error',
+                message: '搜索过程中发生错误',
+                restaurants: []
+            });
+        }
+    });
+}
+
+// 美食推荐的实际实现
+async function realGetFoodRecommendations(location, preferences = [], dietary_restrictions = [], price_range = null, meal_time = null) {
+    // 首先搜索附近的餐厅
+    const searchResult = await realSearchNearbyFood(location, '美食', 5000);
+    
+    if (searchResult.status === 'error' || searchResult.restaurants.length === 0) {
+        return {
+            status: 'error',
+            message: '没有找到适合推荐的餐厅',
+            recommendations: []
+        };
+    }
+    
+    // 为餐厅添加模拟属性并评分
+    let restaurants = searchResult.restaurants;
+    
+    // 添加模拟属性
+    restaurants = restaurants.map(restaurant => {
+        // 生成随机属性
+        const cuisineTypes = ['中餐', '西餐', '日料', '韩餐', '火锅', '烧烤', '小吃', '甜点', '咖啡', '素食'];
+        const priceLevel = ['低价', '中价', '高价'];
+        
+        // 随机标签
+        const tags = [];
+        const tagCount = Math.floor(Math.random() * 3) + 1;
+        for (let i = 0; i < tagCount; i++) {
+            const tag = cuisineTypes[Math.floor(Math.random() * cuisineTypes.length)];
+            if (!tags.includes(tag)) tags.push(tag);
+        }
+        
+        // 随机价格水平
+        const price = priceLevel[Math.floor(Math.random() * priceLevel.length)];
+        
+        // 根据偏好计算得分
+        let score = 0;
+        
+        // 偏好匹配
+        if (preferences && preferences.length > 0) {
+            preferences.forEach(pref => {
+                if (tags.some(tag => tag.includes(pref) || pref.includes(tag))) {
+                    score += 2;
+                }
+            });
+        }
+        
+        // 饮食限制
+        if (dietary_restrictions && dietary_restrictions.length > 0) {
+            dietary_restrictions.forEach(restriction => {
+                if (tags.some(tag => tag.includes(restriction) && !tag.includes('无') && !tag.includes('不含'))) {
+                    score -= 3;
+                }
+            });
+        }
+        
+        // 价格匹配
+        if (price_range && price === price_range) {
+            score += 1;
+        }
+        
+        return {
+            ...restaurant,
+            tags,
+            price,
+            score
+        };
+    });
+    
+    // 过滤和排序推荐
+    const recommendations = restaurants
+        .filter(r => r.score >= 0)
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 5);
+    
+    return {
+        status: 'success',
+        count: recommendations.length,
+        recommendations
+    };
+}
+
+// 美食路线规划的实际实现
+async function realPlanFoodRoute(start_location, food_preferences = [], duration = 3, transport_mode = 'walking') {
+    try {
+        // 根据交通方式计算合理的搜索半径
+        const radius = transport_mode === 'walking' ? 2000 : 5000;
+        
+        // 根据持续时间计算站点数量
+        const stopCount = Math.min(Math.max(Math.floor(duration * 1.5), 2), 5);
+        
+        // 搜索起点附近与每个食物偏好相关的地点
+        const allStops = [];
+        
+        // 如果未指定偏好，使用默认类别
+        const preferences = food_preferences && food_preferences.length > 0 ? 
+            food_preferences : ['美食', '小吃', '甜点'];
+        
+        // 搜索每个偏好
+        for (const pref of preferences) {
+            const result = await realSearchNearbyFood(start_location, pref, radius);
+            if (result.status === 'success' && result.restaurants.length > 0) {
+                allStops.push(...result.restaurants);
+            }
+        }
+        
+        // 如果没有找到任何站点，返回错误
+        if (allStops.length === 0) {
+            return {
+                status: 'error',
+                message: '没有找到符合条件的美食地点',
+                route: null
+            };
+        }
+        
+        // 去重（可能有重复的餐厅）
+        const uniqueStops = [];
+        const seenIds = new Set();
+        
+        allStops.forEach(stop => {
+            if (!seenIds.has(stop.id)) {
+                seenIds.add(stop.id);
+                uniqueStops.push(stop);
+            }
+        });
+        
+        // 按照与起点的距离排序
+        const [startLng, startLat] = start_location.split(',').map(parseFloat);
+        const startPoint = new AMap.LngLat(startLng, startLat);
+        
+        uniqueStops.sort((a, b) => {
+            const aPoint = new AMap.LngLat(a.location[0], a.location[1]);
+            const bPoint = new AMap.LngLat(b.location[0], b.location[1]);
+            return startPoint.distance(aPoint) - startPoint.distance(bPoint);
+        });
+        
+        // 创建路线
+        const route = [];
+        
+        // 添加起点
+        route.push({
+            id: 'start',
+            name: '起点',
+            address: '当前位置',
+            location: [startLng, startLat],
+            isStart: true
+        });
+        
+        // 选择不同类型的餐厅
+        const selectedTypes = new Set();
+        let remainingStops = [...uniqueStops];
+        
+        // 添加中间站点
+        while (route.length < stopCount + 1 && remainingStops.length > 0) {
+            let selectedIndex = -1;
+            
+            // 尝试找到新类型的站点
+            for (let i = 0; i < remainingStops.length; i++) {
+                const stop = remainingStops[i];
+                if (!selectedTypes.has(stop.type)) {
+                    selectedIndex = i;
+                    break;
+                }
+            }
+            
+            // 如果没有新类型，选择第一个
+            if (selectedIndex === -1) {
+                selectedIndex = 0;
+            }
+            
+            const selectedStop = remainingStops[selectedIndex];
+            route.push(selectedStop);
+            selectedTypes.add(selectedStop.type);
+            
+            // 从剩余列表中移除
+            remainingStops.splice(selectedIndex, 1);
+            
+            // 重新排序剩余站点，选择距离当前站点最近的
+            const lastPoint = new AMap.LngLat(selectedStop.location[0], selectedStop.location[1]);
+            remainingStops.sort((a, b) => {
+                const aPoint = new AMap.LngLat(a.location[0], a.location[1]);
+                const bPoint = new AMap.LngLat(b.location[0], b.location[1]);
+                return lastPoint.distance(aPoint) - lastPoint.distance(bPoint);
+            });
+        }
+        
+// 计算总距离
+        let totalDistance = 0;
+        for (let i = 0; i < route.length - 1; i++) {
+            const pointA = new AMap.LngLat(route[i].location[0], route[i].location[1]);
+            const pointB = new AMap.LngLat(route[i+1].location[0], route[i+1].location[1]);
+            totalDistance += pointA.distance(pointB);
+        }
+        
+        // 根据交通方式计算预计时间
+        let speed;
+        if (transport_mode === 'walking') {
+            speed = 1.2; // 步行速度 ~4.3 km/h
+        } else if (transport_mode === 'driving') {
+            speed = 8.3; // 驾车速度 ~30 km/h（考虑城市交通）
+        } else {
+            speed = 4.2; // 公交速度 ~15 km/h（考虑等待时间）
+        }
+        
+        const travelTimeMinutes = Math.round(totalDistance / 1000 / speed * 60);
+        
+        // 在地图上绘制路线
+        drawRouteOnMap(route);
+        
+        // 显示路线引导UI
+        showRouteGuidance(route);
+        
+        return {
+            status: 'success',
+            route_info: {
+                stop_count: route.length,
+                total_distance: Math.round(totalDistance),
+                travel_time_minutes: travelTimeMinutes,
+                transport_mode: transport_mode
+            },
+            stops: route
+        };
+    } catch (error) {
+        console.error("Error in realPlanFoodRoute:", error);
+        return {
+            status: 'error',
+            message: '规划路线时发生错误',
+            route: null
+        };
+    }
+}
+
+// 在地图上绘制路线
+function drawRouteOnMap(stops) {
+    if (!stops || stops.length < 2) return;
+    
+    // 清除信息窗口
+    map.clearInfoWindow();
+    
+    // 提取路线点
+    const path = stops.map(stop => new AMap.LngLat(stop.location[0], stop.location[1]));
+    
+    // 创建路线
+    const polyline = new AMap.Polyline({
+        path: path,
+        strokeColor: '#007aff',
+        strokeWeight: 6,
+        strokeOpacity: 0.8,
+        strokeStyle: 'solid',
+        strokeDasharray: [10, 5],
+        lineJoin: 'round'
+    });
+    
+    map.add(polyline);
+    
+    // 添加沿途标记点
+    const routeMarkers = [];
+    
+    stops.forEach((stop, index) => {
+        let icon;
+        if (index === 0) {
+            icon = "https://webapi.amap.com/theme/v1.3/markers/n/start.png";
+        } else if (index === stops.length - 1) {
+            icon = "https://webapi.amap.com/theme/v1.3/markers/n/end.png";
+        } else {
+            icon = "https://webapi.amap.com/theme/v1.3/markers/n/mid.png";
+        }
+        
+        const marker = new AMap.Marker({
+            map: map,
+            position: new AMap.LngLat(stop.location[0], stop.location[1]),
+            icon: icon,
+            label: {
+                content: `<div style="padding: 5px; background: white; border-radius: 5px;">${index + 1}. ${stop.name}</div>`,
+                direction: 'top'
+            }
+        });
+        
+        routeMarkers.push(marker);
+    });
+    
+    markers = [...markers, ...routeMarkers];
+    
+    // 调整地图视图以显示整个路线
+    map.setFitView();
+}
+
+// 显示路线引导UI
+function showRouteGuidance(stops) {
+    const routeGuidance = document.getElementById('route-guidance');
+    const routeStops = document.getElementById('route-stops');
+    
+    // 清空现有内容
+    routeStops.innerHTML = '';
+    
+    // 添加停靠点
+    stops.forEach((stop, index) => {
+        const stopItem = document.createElement('div');
+        stopItem.className = 'route-stop';
+        
+        stopItem.innerHTML = `
+            <div class="stop-number">${index + 1}</div>
+            <div class="stop-info">
+                <div class="stop-name">${stop.name}</div>
+                <div class="stop-address">${stop.address}</div>
+            </div>
+        `;
+        
+        routeStops.appendChild(stopItem);
+    });
+    
+    // 显示路线引导
+    routeGuidance.classList.add('active');
+    
+    // 开始导航按钮点击事件
+    document.getElementById('start-navigation').addEventListener('click', function() {
+        // 构建起点和终点
+        const start = stops[0].location.join(',');
+        const end = stops[stops.length - 1].location.join(',');
+        
+        // 构建途经点
+        const waypoints = stops.slice(1, -1).map(stop => stop.location.join(',')).join(';');
+        
+        // 构建导航URL
+        let navUrl = `https://uri.amap.com/navigation?from=${start},起点&to=${end},终点`;
+        
+        if (waypoints) {
+            navUrl += `&waypoints=${waypoints}`;
+        }
+        
+        navUrl += '&mode=walk&policy=1&src=myapp&callnative=1';
+        
+        // 打开导航
+        window.open(navUrl, '_blank');
+    });
+    
+    // 修改路线按钮点击事件
+    document.getElementById('modify-route').addEventListener('click', function() {
+        // 打开AI助手
+        toggleAssistant(true);
+        
+        // 设置修改路线的提示消息
+        document.getElementById('user-input').value = '重新规划美食路线，增加更多甜品店';
+        
+        // 关闭路线引导
+        document.getElementById('route-guidance').classList.remove('active');
+    });
+}
+
+// 搜索按钮点击事件
+document.getElementById('search-btn').addEventListener('click', function() {
+    var keyword = document.getElementById('keyword').value.trim();
+    if (keyword) {
+        currentKeyword = keyword;
+        searchPOI();
+        
+        // 更新分类选中状态
+        document.querySelectorAll('.category').forEach(function(cat) {
+            cat.classList.remove('active');
+            if (cat.dataset.keyword === keyword) {
+                cat.classList.add('active');
+            }
+        });
+    }
+});
+
+// 回车键搜索
+document.getElementById('keyword').addEventListener('keyup', function(e) {
+    if (e.key === 'Enter') {
+        document.getElementById('search-btn').click();
+    }
+});
+
+// 分类点击事件
+document.querySelectorAll('.category').forEach(function(category) {
+    category.addEventListener('click', function() {
+        document.querySelectorAll('.category').forEach(function(cat) {
+            cat.classList.remove('active');
+        });
+        this.classList.add('active');
+        
+        currentKeyword = this.dataset.keyword;
+        document.getElementById('keyword').value = currentKeyword;
+        searchPOI();
+    });
+});
+
+// 城市选择器点击事件
+document.getElementById('current-city').addEventListener('click', function() {
+    openModal('city-modal');
+});
+
+// 城市项点击事件
+document.querySelectorAll('.city-item').forEach(function(cityItem) {
+    cityItem.addEventListener('click', function() {
+        var cityName = this.getAttribute('data-city');
+        var cityAdcode = this.getAttribute('data-adcode');
+        
+        currentCity = {
+            name: cityName,
+            adcode: cityAdcode
+        };
+        
+        updateCityText();
+        
+        // 使用地理编码服务获取城市中心点
+        var geocoder = new AMap.Geocoder();
+        geocoder.getLocation(cityName, function(status, result) {
+            if (status === 'complete' && result.info === 'OK') {
+                // 获取城市中心点
+                var location = result.geocodes[0].location;
+                
+                // 设置地图中心点
+                map.setCenter(location);
+                
+                // 设置适当的缩放级别
+                map.setZoom(11);
+                
+                // 清除原有标记点
+                clearMarkers();
+                
+                // 执行新的搜索
+                searchPOI();
+                
+                // 更新社区内容
+                loadCommunityContent();
+            } else {
+                // 如果地理编码失败，仍然执行搜索
+                searchPOI();
+                loadCommunityContent();
+            }
+        });
+        
+        closeModal('city-modal');
+    });
+});
+
+// 收藏按钮点击事件
+document.getElementById('favorites-btn').addEventListener('click', function() {
+    showFavorites();
+    openModal('favorites-modal');
+});
+
+// 添加分享按钮点击事件（FAB菜单）
+document.getElementById('fab-share').addEventListener('click', function() {
+    updateSharePreview();
+    openModal('share-modal');
+    hideFabMenu();
+});
+
+// 收藏FAB按钮点击事件
+document.getElementById('fab-favorite').addEventListener('click', function() {
+    if (!currentPOI) return;
+    
+    // 检查是否已收藏
+    var isFavorite = favorites.some(function(fav) {
+        return fav.id === currentPOI.id;
+    });
+    
+    if (isFavorite) {
+        // 取消收藏
+        favorites = favorites.filter(function(fav) {
+            return fav.id !== currentPOI.id;
+        });
+        showToast('已取消收藏');
+    } else {
+        // 添加收藏
+        favorites.push({
+            id: currentPOI.id,
+            name: currentPOI.name,
+            address: currentPOI.address || currentPOI.location.toString(),
+            location: [currentPOI.location.lng, currentPOI.location.lat],
+            type: currentPOI.type || '特色美食'
+        });
+        showToast('已添加到收藏');
+    }
+    
+    // 更新本地存储
+    localStorage.setItem('foodExplorerFavorites', JSON.stringify(favorites));
+    
+    // 更新信息窗体中的收藏状态
+    if (infoWindow.getIsOpen()) {
+        var favoriteBtn = document.querySelector('.info-window-favorite');
+        if (isFavorite) {
+            favoriteBtn.classList.remove('active');
+        } else {
+            favoriteBtn.classList.add('active');
+        }
+    }
+    
+    // 更新结果列表中的收藏状态
+    updateResultListFavoriteStatus();
+    
+    hideFabMenu();
+});
+
+// 路线规划FAB按钮点击事件
+document.getElementById('fab-route').addEventListener('click', function() {
+    if (!currentPOI) return;
+    
+    // 显示AI助手
+    toggleAssistant(true);
+    
+    // 设置规划路线的提示消息
+    document.getElementById('user-input').value = `以${currentPOI.name}为起点，帮我规划一个美食路线`;
+    
+    hideFabMenu();
+});
+
+// 分享表单提交事件
+document.getElementById('share-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    shareFood();
+});
+
+// 模态框关闭按钮点击事件
+document.querySelectorAll('.modal-close').forEach(function(closeBtn) {
+    closeBtn.addEventListener('click', function() {
+        var modal = this.closest('.modal');
+        closeModal(modal.id);
+    });
+});
+
+// 标签切换事件
+document.querySelectorAll('.tab').forEach(function(tab) {
+    tab.addEventListener('click', function() {
+        var tabId = this.getAttribute('data-tab');
+        switchTab(tabId);
+    });
+});
+
+// 点击模态框背景关闭模态框
+document.querySelectorAll('.modal').forEach(function(modal) {
+    modal.addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeModal(this.id);
+        }
+    });
+});
+
+// 添加滚动加载事件
+document.getElementById('panel').addEventListener('scroll', function() {
+    var panel = this;
+    // 当滚动到底部附近时加载更多
+    if (panel.scrollHeight - panel.scrollTop - panel.clientHeight < 100) {
+        searchMorePOI();
+    }
+});
+
+// 关闭路线引导
+document.getElementById('close-route').addEventListener('click', function() {
+    document.getElementById('route-guidance').classList.remove('active');
+});
+
+// 页面加载完成后执行
+window.onload = function() {
+    initMap();
+    initAIAssistant();
+    
+    // 初始化助手界面交互
+    document.getElementById('open-assistant').addEventListener('click', function() {
+        toggleAssistant();
+    });
+    
+    document.getElementById('close-chat').addEventListener('click', function() {
+        toggleAssistant();
+    });
+    
+    document.getElementById('send-message').addEventListener('click', function() {
+        sendUserMessage();
+    });
+    
+    document.getElementById('user-input').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            sendUserMessage();
+        }
+    });
+};
+
+// 信息窗体中收藏按钮点击事件（全局函数，可从信息窗体HTML中调用）
+window.toggleFavorite = function(event) {
+    toggleFavorite(event);
+};
+
+// 信息窗体中导航按钮点击事件
+window.navigateTo = function() {
+    navigateTo();
+};
+
+// 信息窗体中分享按钮点击事件
+window.openShareModal = function() {
+    updateSharePreview();
+    openModal('share-modal');
+};
+</script>
+
+</body>
+</html>
